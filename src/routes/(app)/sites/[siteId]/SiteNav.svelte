@@ -1,7 +1,14 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 
-	type Section = 'overview' | 'keywords' | 'rankings' | 'competitors' | 'content' | 'analytics';
+	type Section =
+		| 'overview'
+		| 'keywords'
+		| 'rankings'
+		| 'competitors'
+		| 'links'
+		| 'content'
+		| 'analytics';
 
 	let { siteId, current }: { siteId: string; current: Section } = $props();
 
@@ -21,6 +28,11 @@
 			key: 'competitors',
 			label: 'Competitors',
 			href: resolve('/(app)/sites/[siteId]/competitors', { siteId })
+		},
+		{
+			key: 'links',
+			label: 'Links',
+			href: resolve('/(app)/sites/[siteId]/links', { siteId })
 		},
 		{
 			key: 'content',
