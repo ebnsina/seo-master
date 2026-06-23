@@ -182,8 +182,8 @@ button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
-	padding: 17px 22px;
+	gap: 6px;
+	padding: 9px 16px;
 	border-radius: var(--radius-sm);
 	border: 1px solid var(--border-strong);
 	text-decoration: none;
@@ -218,7 +218,7 @@ button {
 /* Text inputs — extends the squircle/field treatment of the system. */
 .field {
 	width: 100%;
-	padding: 13px 14px;
+	padding: 9px 12px;
 	border-radius: var(--radius-sm);
 	border: 1px solid var(--border-strong);
 	background: var(--bg-elev-2);
