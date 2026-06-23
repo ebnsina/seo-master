@@ -103,6 +103,12 @@
 			>
 				Keyword research
 			</a>
+			<a
+				href={resolve('/(app)/sites/[siteId]/rankings', { siteId: data.site.id })}
+				class="btn text-sm"
+			>
+				Rank tracking
+			</a>
 			<button
 				onclick={runAudit}
 				disabled={running || startAudit.pending > 0}

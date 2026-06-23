@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import {
+	date,
 	doublePrecision,
 	integer,
 	pgEnum,
@@ -204,8 +205,36 @@ export const siteRelations = relations(site, ({ one, many }) => ({
 	keywords: many(keyword)
 }));
 
-export const keywordRelations = relations(keyword, ({ one }) => ({
-	site: one(site, { fields: [keyword.siteId], references: [site.id] })
+/**
+ * A point-in-time capture of a keyword's Google Search performance (from the
+ * Search Console Search Analytics API). One row per keyword per capture date;
+ * comparing across dates gives the trend.
+ */
+export const rankSnapshot = pgTable(
+	'rank_snapshot',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		keywordId: uuid('keyword_id')
+			.notNull()
+			.references(() => keyword.id, { onDelete: 'cascade' }),
+		capturedDate: date('captured_date').notNull(),
+		/** Average Google position (lower is better). */
+		position: doublePrecision('position'),
+		clicks: integer('clicks').notNull().default(0),
+		impressions: integer('impressions').notNull().default(0),
+		ctr: doublePrecision('ctr'),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [uniqueIndex('rank_snapshot_keyword_date_idx').on(t.keywordId, t.capturedDate)]
+);
+
+export const keywordRelations = relations(keyword, ({ one, many }) => ({
+	site: one(site, { fields: [keyword.siteId], references: [site.id] }),
+	snapshots: many(rankSnapshot)
+}));
+
+export const rankSnapshotRelations = relations(rankSnapshot, ({ one }) => ({
+	keyword: one(keyword, { fields: [rankSnapshot.keywordId], references: [keyword.id] })
 }));
 
 export const crawlRelations = relations(crawl, ({ one, many }) => ({
@@ -244,6 +273,7 @@ export type Page = typeof page.$inferSelect;
 export type AuditIssue = typeof auditIssue.$inferSelect;
 export type GoogleConnection = typeof googleConnection.$inferSelect;
 export type Keyword = typeof keyword.$inferSelect;
+export type RankSnapshot = typeof rankSnapshot.$inferSelect;
 export type SearchIntent = (typeof searchIntent.enumValues)[number];
 export type MemberRole = (typeof memberRole.enumValues)[number];
 export type SiteVerificationStatus = (typeof siteVerificationStatus.enumValues)[number];

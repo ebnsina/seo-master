@@ -45,6 +45,32 @@ export async function addSite(accessToken: string, siteUrl: string): Promise<voi
 		throw new SearchConsoleError(`Could not add the site to Search Console (${res.status}).`);
 }
 
+export interface SearchAnalyticsRow {
+	/** Dimension values, e.g. [query]. */
+	keys: string[];
+	clicks: number;
+	impressions: number;
+	ctr: number;
+	position: number;
+}
+
+/** Query the Search Analytics API (clicks/impressions/ctr/position) for a property. */
+export async function searchAnalyticsQuery(
+	accessToken: string,
+	siteUrl: string,
+	body: { startDate: string; endDate: string; dimensions?: string[]; rowLimit?: number }
+): Promise<SearchAnalyticsRow[]> {
+	const url = `${BASE}/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`;
+	const res = await fetch(url, {
+		method: 'POST',
+		headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+		body: JSON.stringify(body)
+	});
+	if (!res.ok) throw new SearchConsoleError(`Search Analytics query failed (${res.status}).`);
+	const data = (await res.json()) as { rows?: SearchAnalyticsRow[] };
+	return data.rows ?? [];
+}
+
 /** Submit (or re-submit) a sitemap to a Search Console property. */
 export async function submitSitemap(
 	accessToken: string,
