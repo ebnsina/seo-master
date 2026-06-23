@@ -5,6 +5,7 @@ import { requireActiveOrg, requireWriteAccess } from '$lib/server/org';
 import {
 	DuplicateSiteError,
 	InvalidUrlError,
+	SiteError,
 	createSite,
 	deleteSite,
 	listSitesForOrg
@@ -34,6 +35,28 @@ export const addSite = form(addSiteSchema, async (data, issue) => {
 	// Refresh the list on the server so the new site is sent back with the result.
 	void getSites().refresh();
 });
+
+export interface QuickAddResult {
+	ok: boolean;
+	siteId?: string;
+	message?: string;
+}
+
+/** Add a site and return its id (for the onboarding wizard). */
+export const quickAddSite = command(
+	z.object({ url: z.string().trim().min(1), name: z.string().trim().optional() }),
+	async ({ url, name }): Promise<QuickAddResult> => {
+		const { organization } = await requireWriteAccess();
+		try {
+			const site = await createSite({ organizationId: organization.id, name: name ?? '', url });
+			void getSites().refresh();
+			return { ok: true, siteId: site.id };
+		} catch (err) {
+			if (err instanceof SiteError) return { ok: false, message: err.message };
+			throw err;
+		}
+	}
+);
 
 export const removeSite = command(z.string().uuid(), async (siteId) => {
 	const { organization } = await requireWriteAccess();
