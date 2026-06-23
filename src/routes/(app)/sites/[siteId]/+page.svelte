@@ -7,6 +7,7 @@
 	import type { IssueSeverity } from '$lib/server/db/schema';
 	import { getAudit, startAudit } from './audit.remote';
 	import GoogleCard from './GoogleCard.svelte';
+	import IssueFix from './IssueFix.svelte';
 	import SiteNav from './SiteNav.svelte';
 	import type { PageData } from './$types';
 
@@ -301,5 +302,13 @@
 				{/each}
 			</ul>
 		</div>
+
+		{#if audit.current?.aiAvailable}
+			<IssueFix
+				siteId={data.siteId}
+				code={group.code}
+				pageUrl={group.items.find((it) => it.pageUrl)?.pageUrl ?? undefined}
+			/>
+		{/if}
 	</details>
 {/snippet}

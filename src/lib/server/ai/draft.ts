@@ -1,56 +1,10 @@
 import { chat, type ModelMessage } from '@tanstack/ai';
-import { createOpenaiChat } from '@tanstack/ai-openai';
-import { createAnthropicChat } from '@tanstack/ai-anthropic';
-import { createGeminiChat } from '@tanstack/ai-gemini';
-import { ollamaText } from '@tanstack/ai-ollama';
 import { z } from 'zod';
-import { AI_API_KEY, AI_MODEL, AI_PROVIDER } from '$app/env/private';
 import type { ContentBrief, ContentDraft } from '$lib/content/types';
+import { buildAdapter, isAiConfigured } from './provider';
 
-/**
- * AI is provider-agnostic (TanStack AI). The deployer/consumer picks the
- * provider, model, and key via env — Anthropic is one option, not a requirement.
- */
-export const AI_PROVIDERS = ['openai', 'anthropic', 'gemini', 'ollama'] as const;
-export type AiProvider = (typeof AI_PROVIDERS)[number];
-
-/** Ollama runs locally and needs no API key; the cloud providers do. */
-function needsKey(provider: string): boolean {
-	return provider !== 'ollama';
-}
-
-/** Whether AI drafting is configured. Content briefs work without it. */
-export function isAiConfigured(): boolean {
-	if (!AI_PROVIDER || !AI_MODEL) return false;
-	if (!AI_PROVIDERS.includes(AI_PROVIDER as AiProvider)) return false;
-	return !needsKey(AI_PROVIDER) || Boolean(AI_API_KEY);
-}
-
-/** Build the configured provider's text adapter. The model string is validated by the provider at call time. */
-function buildAdapter() {
-	if (!AI_MODEL) throw new Error('AI_MODEL is not set.');
-	const key = AI_API_KEY ?? '';
-
-	switch (AI_PROVIDER) {
-		case 'openai':
-			return createOpenaiChat(model<typeof createOpenaiChat>(AI_MODEL), key);
-		case 'anthropic':
-			return createAnthropicChat(model<typeof createAnthropicChat>(AI_MODEL), key);
-		case 'gemini':
-			return createGeminiChat(model<typeof createGeminiChat>(AI_MODEL), key);
-		case 'ollama':
-			return ollamaText(AI_MODEL);
-		default:
-			throw new Error(`Unsupported AI provider: ${AI_PROVIDER}`);
-	}
-}
-
-/** Cast a runtime model string to a provider factory's (literal-union) model param. */
-function model<TFn extends (m: never, ...rest: never[]) => unknown>(
-	value: string
-): Parameters<TFn>[0] {
-	return value as Parameters<TFn>[0];
-}
+// Re-exported for existing call sites (content engine gates on these).
+export { AI_PROVIDERS, isAiConfigured, type AiProvider } from './provider';
 
 const DraftSchema = z.object({
 	title: z.string(),
