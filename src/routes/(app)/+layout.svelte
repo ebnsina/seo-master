@@ -71,7 +71,7 @@
 	{#if drawerOpen}
 		<button class="fixed inset-0 z-40 bg-black/30 md:hidden" aria-label="Close menu" onclick={close}
 		></button>
-		<aside class="bg-elev fixed inset-y-0 left-0 z-50 w-64 shadow-card md:hidden">
+		<aside class="bg-elev border-line fixed inset-y-0 left-0 z-50 w-64 border-r md:hidden">
 			{@render sidebar()}
 		</aside>
 	{/if}

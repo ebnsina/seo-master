@@ -173,9 +173,8 @@ button {
 .card {
 	position: relative;
 	background: var(--bg-elev);
-	border: 1px solid var(--border);
+	border: 1px solid var(--border-strong);
 	border-radius: var(--radius);
-	box-shadow: var(--shadow);
 }
 
 .btn {
@@ -195,20 +194,17 @@ button {
 .btn:hover:not(:disabled) {
 	border-color: var(--accent);
 	color: var(--accent);
-	transform: translateY(-1px);
-	box-shadow: var(--shadow-sm);
 }
 .btn-primary {
 	background: var(--accent);
-	border: none;
+	border: 1px solid var(--accent);
 	color: #fff;
 	font-weight: 700;
-	box-shadow: 0 10px 22px -10px rgba(0, 104, 168, 0.6);
 }
 .btn-primary:hover:not(:disabled) {
 	background: var(--accent-2);
+	border-color: var(--accent-2);
 	color: #fff;
-	transform: translateY(-1px);
 }
 .btn:disabled {
 	opacity: 0.45;
