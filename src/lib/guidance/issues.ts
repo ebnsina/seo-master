@@ -6,12 +6,17 @@ export type IssueScope = 'page' | 'site';
 /** How hard the fix is for a non-technical user. */
 export type IssueDifficulty = 'easy' | 'technical';
 
+/** `seo` = classic search; `geo` = being found by AI answer engines. */
+export type IssueCategory = 'seo' | 'geo';
+
 export interface IssueGuidance {
 	/** Short, plain-language headline (no jargon). */
 	title: string;
 	severity: IssueSeverity;
 	scope: IssueScope;
 	difficulty: IssueDifficulty;
+	/** Defaults to `seo` when omitted. */
+	category?: IssueCategory;
 	/** What the thing is, explained to someone new to SEO. */
 	whatItIs: string;
 	/** Why it matters for ranking / visitors. */
@@ -176,6 +181,64 @@ export const ISSUE_GUIDANCE = {
 			'Generate a sitemap.xml (most CMSs and SEO plugins do this automatically).',
 			'Reference it from your robots.txt and submit it in Google Search Console.'
 		]
+	},
+
+	// --- AI search readiness (GEO) ----------------------------------------
+	ai_crawlers_blocked: {
+		title: 'AI assistants are blocked from your site',
+		severity: 'warning',
+		scope: 'site',
+		difficulty: 'technical',
+		category: 'geo',
+		whatItIs:
+			'Your robots.txt tells AI tools (like ChatGPT, Claude and Perplexity) not to read your site.',
+		whyItMatters:
+			'If these crawlers are blocked, AI assistants can’t read or cite your pages when people ask them questions — so you stay invisible in AI answers.',
+		howToFix: [
+			'In your robots.txt, allow the AI crawlers you want (e.g. GPTBot, ClaudeBot, PerplexityBot).',
+			'Only keep them blocked if you deliberately don’t want to appear in AI tools.'
+		]
+	},
+	llms_txt_missing: {
+		title: 'No llms.txt file for AI tools',
+		severity: 'notice',
+		scope: 'site',
+		difficulty: 'technical',
+		category: 'geo',
+		whatItIs:
+			'llms.txt is a simple file that tells AI assistants what your site is about and which pages matter most.',
+		whyItMatters:
+			'It’s an emerging standard that helps AI engines understand and summarise your site accurately.',
+		howToFix: [
+			'Add a plain-text file at /llms.txt with a short description of your site and links to your key pages.'
+		]
+	},
+	missing_structured_data: {
+		title: 'No structured data on the page',
+		severity: 'notice',
+		scope: 'page',
+		difficulty: 'technical',
+		category: 'geo',
+		whatItIs:
+			'Structured data (schema.org) is hidden labelling that tells machines what your content means — who you are, what you sell, your articles, FAQs.',
+		whyItMatters:
+			'It powers Google’s rich results and helps AI engines extract accurate facts to cite about you.',
+		howToFix: [
+			'Add JSON-LD structured data appropriate to the page (Organization, Article, Product, FAQ).',
+			'Most CMS SEO plugins can add this for you.'
+		]
+	},
+	missing_open_graph: {
+		title: 'No social/preview tags (Open Graph)',
+		severity: 'notice',
+		scope: 'page',
+		difficulty: 'easy',
+		category: 'geo',
+		whatItIs:
+			'Open Graph tags give a clean title, description and image when your page is shared or summarised.',
+		whyItMatters:
+			'They control how your page looks when shared on social media and previewed by some AI and chat tools.',
+		howToFix: ['Add og:title, og:description and og:image tags to your pages’ <head>.']
 	}
 } as const satisfies Record<string, IssueGuidance>;
 
@@ -183,6 +246,11 @@ export type IssueCode = keyof typeof ISSUE_GUIDANCE;
 
 export function getGuidance(code: string): IssueGuidance | undefined {
 	return ISSUE_GUIDANCE[code as IssueCode];
+}
+
+/** Category for a code (defaults to `seo`). */
+export function getCategory(code: string): IssueCategory {
+	return getGuidance(code)?.category ?? 'seo';
 }
 
 /** Penalty applied to the 0–100 health score per issue, by severity. */

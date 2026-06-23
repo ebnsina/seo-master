@@ -60,6 +60,10 @@ function auditPage(p: PageData): Finding[] {
 
 	if (p.noindex) findings.push({ code: 'page_noindex', pageUrl: p.url });
 
+	// AI search readiness (GEO).
+	if (!p.hasStructuredData) findings.push({ code: 'missing_structured_data', pageUrl: p.url });
+	if (!p.hasOpenGraph) findings.push({ code: 'missing_open_graph', pageUrl: p.url });
+
 	return findings;
 }
 
@@ -71,6 +75,15 @@ export function runAuditRules(input: AuditInput): Finding[] {
 	if (!input.isHttps && !input.isLocal) findings.push({ code: 'no_https' });
 	if (!input.robotsFound) findings.push({ code: 'robots_missing' });
 	if (!input.sitemapFound) findings.push({ code: 'sitemap_missing' });
+
+	// Site-level AI search readiness (GEO).
+	if (input.blockedAiCrawlers.length > 0) {
+		findings.push({
+			code: 'ai_crawlers_blocked',
+			detail: `Blocked: ${input.blockedAiCrawlers.join(', ')}`
+		});
+	}
+	if (!input.llmsTxtFound) findings.push({ code: 'llms_txt_missing' });
 
 	for (const p of input.pages) findings.push(...auditPage(p));
 

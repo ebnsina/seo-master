@@ -5,6 +5,21 @@ import { discoverSitemapUrls } from './sitemap';
 
 export type { PageData } from './extract';
 
+/** AI answer-engine crawlers we check for, by their robots.txt user-agent token. */
+export const AI_CRAWLERS = [
+	'GPTBot',
+	'OAI-SearchBot',
+	'ChatGPT-User',
+	'ClaudeBot',
+	'anthropic-ai',
+	'PerplexityBot',
+	'Google-Extended',
+	'CCBot',
+	'Applebot-Extended',
+	'Bytespider',
+	'Meta-ExternalAgent'
+];
+
 export interface CrawlOptions {
 	maxPages?: number;
 	concurrency?: number;
@@ -16,6 +31,10 @@ export interface CrawlResult {
 	isHttps: boolean;
 	robotsFound: boolean;
 	sitemapFound: boolean;
+	/** `/llms.txt` present — emerging standard describing the site to AI tools. */
+	llmsTxtFound: boolean;
+	/** AI crawlers explicitly blocked in robots.txt (can't read/cite the site). */
+	blockedAiCrawlers: string[];
 	pages: PageData[];
 }
 
@@ -32,6 +51,8 @@ function minimalPageData(url: string, statusCode: number): PageData {
 		imagesMissingAlt: 0,
 		noindex: false,
 		hasViewport: false,
+		hasStructuredData: false,
+		hasOpenGraph: false,
 		internalLinks: [],
 		externalLinkCount: 0
 	};
@@ -48,6 +69,9 @@ export async function crawlSite(origin: string, options: CrawlOptions = {}): Pro
 
 	const robots = await fetchRobots(origin);
 	const sitemap = await discoverSitemapUrls(origin, robots.sitemaps, maxPages);
+	const llmsTxt = await politeFetch(new URL('/llms.txt', origin).href);
+	const llmsTxtFound = llmsTxt.status >= 200 && llmsTxt.status < 300 && llmsTxt.body.length > 0;
+	const blockedAiCrawlers = robots.blockedAgents(AI_CRAWLERS);
 
 	const start = canonicalizeUrl(origin, origin) ?? origin;
 	const queue: string[] = [start, ...sitemap.urls];
@@ -92,6 +116,8 @@ export async function crawlSite(origin: string, options: CrawlOptions = {}): Pro
 		isHttps,
 		robotsFound: robots.found,
 		sitemapFound: sitemap.found,
+		llmsTxtFound,
+		blockedAiCrawlers,
 		pages
 	};
 }

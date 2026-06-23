@@ -17,6 +17,10 @@ export interface PageData {
 	/** True if the page asks search engines not to index it. */
 	noindex: boolean;
 	hasViewport: boolean;
+	/** schema.org JSON-LD present — helps search + AI engines understand the page. */
+	hasStructuredData: boolean;
+	/** Open Graph tags present — used by social + AI preview/summary tools. */
+	hasOpenGraph: boolean;
 	/** Same-origin links discovered on the page (absolute, de-duplicated). */
 	internalLinks: string[];
 	externalLinkCount: number;
@@ -59,6 +63,9 @@ export function extractPageData(
 	const robots = ($('meta[name="robots"]').attr('content') ?? '').toLowerCase();
 	const noindex = robots.includes('noindex');
 	const hasViewport = $('meta[name="viewport"]').length > 0;
+	const hasStructuredData = $('script[type="application/ld+json"]').length > 0;
+	const hasOpenGraph =
+		$('meta[property="og:title"]').length > 0 || $('meta[property="og:description"]').length > 0;
 
 	const h1Count = $('h1').length;
 
@@ -100,6 +107,8 @@ export function extractPageData(
 		canonical,
 		noindex,
 		hasViewport,
+		hasStructuredData,
+		hasOpenGraph,
 		internalLinks: [...internal],
 		externalLinkCount
 	};

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { getGuidance, SEVERITY_ORDER } from '$lib/guidance/issues';
+	import { getCategory, getGuidance, SEVERITY_ORDER } from '$lib/guidance/issues';
 	import type { IssueSeverity } from '$lib/server/db/schema';
 	import { getAudit, startAudit } from './audit.remote';
 	import GoogleCard from './GoogleCard.svelte';
@@ -49,6 +49,9 @@
 			.map((code) => byCode[code])
 			.sort((a, b) => SEVERITY_ORDER.indexOf(a.severity) - SEVERITY_ORDER.indexOf(b.severity));
 	});
+
+	const seoGroups = $derived(groups.filter((g) => getCategory(g.code) === 'seo'));
+	const geoGroups = $derived(groups.filter((g) => getCategory(g.code) === 'geo'));
 
 	function scoreColor(score: number): string {
 		if (score >= 80) return 'text-good';
@@ -157,66 +160,80 @@
 				</div>
 			</div>
 
-			<!-- Issues -->
+			<!-- Classic SEO issues -->
 			{#if groups.length === 0}
 				<div class="card p-8 text-center text-good">🎉 No issues found — great work!</div>
 			{:else}
-				<div class="space-y-3">
-					<h2 class="text-lg text-text">What to fix</h2>
-					{#each groups as group (group.code)}
-						{@const g = getGuidance(group.code)}
-						<details class="card p-5">
-							<summary class="flex cursor-pointer items-center gap-3">
-								<span class="text-xs font-semibold uppercase {severityClass[group.severity]}">
-									{severityLabel[group.severity]}
-								</span>
-								<span class="flex-1 font-medium text-text">{group.title}</span>
-								<span class="text-sm text-dim">
-									{group.items.length}
-									{group.items.length === 1 ? 'page' : 'pages'}
-								</span>
-							</summary>
+				{#if seoGroups.length > 0}
+					<div class="space-y-3">
+						<h2 class="text-lg text-text">What to fix</h2>
+						{#each seoGroups as group (group.code)}
+							{@render issueCard(group)}
+						{/each}
+					</div>
+				{/if}
 
-							{#if g}
-								<div class="mt-4 space-y-3 text-sm">
-									<p class="text-dim">
-										<strong class="text-text">What it is:</strong>
-										{g.whatItIs}
-									</p>
-									<p class="text-dim">
-										<strong class="text-text">Why it matters:</strong>
-										{g.whyItMatters}
-									</p>
-									<div class="text-dim">
-										<strong class="text-text">How to fix it:</strong>
-										<ul class="mt-1 list-disc space-y-1 pl-5">
-											{#each g.howToFix as step (step)}
-												<li>{step}</li>
-											{/each}
-										</ul>
-									</div>
-									{#if g.difficulty === 'technical'}
-										<p class="text-xs text-faint">
-											This one’s technical — share it with whoever manages your site.
-										</p>
-									{/if}
-								</div>
-							{/if}
-
-							<div class="mt-4 border-t border-line pt-3">
-								<p class="mb-1 text-xs font-semibold text-faint">Affected:</p>
-								<ul class="space-y-1">
-									{#each group.items as item, i (item.pageUrl ?? i)}
-										<li class="mono truncate text-xs text-dim">
-											{item.pageUrl ?? 'Whole site'}{item.detail ? ` — ${item.detail}` : ''}
-										</li>
-									{/each}
-								</ul>
-							</div>
-						</details>
-					{/each}
-				</div>
+				<!-- AI search readiness (GEO) -->
+				{#if geoGroups.length > 0}
+					<div class="space-y-3">
+						<h2 class="text-lg text-text">Get found by AI assistants</h2>
+						<p class="-mt-1 text-sm text-dim">
+							“GEO” means making your site easy for AI answer tools (ChatGPT, Claude, Perplexity) to
+							read and cite. Fixing these helps you show up when people ask AI instead of searching.
+						</p>
+						{#each geoGroups as group (group.code)}
+							{@render issueCard(group)}
+						{/each}
+					</div>
+				{/if}
 			{/if}
 		{/if}
 	</div>
 {/if}
+
+{#snippet issueCard(group: IssueGroup)}
+	{@const g = getGuidance(group.code)}
+	<details class="card p-5">
+		<summary class="flex cursor-pointer items-center gap-3">
+			<span class="text-xs font-semibold uppercase {severityClass[group.severity]}">
+				{severityLabel[group.severity]}
+			</span>
+			<span class="flex-1 font-medium text-text">{group.title}</span>
+			<span class="text-sm text-dim">
+				{group.items.length}
+				{group.items.length === 1 ? 'page' : 'pages'}
+			</span>
+		</summary>
+
+		{#if g}
+			<div class="mt-4 space-y-3 text-sm">
+				<p class="text-dim"><strong class="text-text">What it is:</strong> {g.whatItIs}</p>
+				<p class="text-dim"><strong class="text-text">Why it matters:</strong> {g.whyItMatters}</p>
+				<div class="text-dim">
+					<strong class="text-text">How to fix it:</strong>
+					<ul class="mt-1 list-disc space-y-1 pl-5">
+						{#each g.howToFix as step (step)}
+							<li>{step}</li>
+						{/each}
+					</ul>
+				</div>
+				{#if g.difficulty === 'technical'}
+					<p class="text-xs text-faint">
+						This one’s technical — share it with whoever manages your site.
+					</p>
+				{/if}
+			</div>
+		{/if}
+
+		<div class="mt-4 border-t border-line pt-3">
+			<p class="mb-1 text-xs font-semibold text-faint">Affected:</p>
+			<ul class="space-y-1">
+				{#each group.items as item, i (item.pageUrl ?? i)}
+					<li class="mono truncate text-xs text-dim">
+						{item.pageUrl ?? 'Whole site'}{item.detail ? ` — ${item.detail}` : ''}
+					</li>
+				{/each}
+			</ul>
+		</div>
+	</details>
+{/snippet}
