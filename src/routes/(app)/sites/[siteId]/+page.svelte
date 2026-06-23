@@ -109,6 +109,12 @@
 			>
 				Rank tracking
 			</a>
+			<a
+				href={resolve('/(app)/sites/[siteId]/competitors', { siteId: data.site.id })}
+				class="btn text-sm"
+			>
+				Competitors
+			</a>
 			<button
 				onclick={runAudit}
 				disabled={running || startAudit.pending > 0}

@@ -182,6 +182,22 @@ export const keyword = pgTable(
 	(t) => [uniqueIndex('keyword_site_phrase_idx').on(t.siteId, t.phrase)]
 );
 
+/** A competitor website tracked against one of the org's sites. */
+export const competitor = pgTable(
+	'competitor',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		siteId: uuid('site_id')
+			.notNull()
+			.references(() => site.id, { onDelete: 'cascade' }),
+		name: text('name').notNull(),
+		domain: text('domain').notNull(),
+		url: text('url').notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [uniqueIndex('competitor_site_domain_idx').on(t.siteId, t.domain)]
+);
+
 export const userRelations = relations(user, ({ many }) => ({
 	memberships: many(member),
 	sessions: many(session)
@@ -202,7 +218,12 @@ export const siteRelations = relations(site, ({ one, many }) => ({
 		references: [organization.id]
 	}),
 	crawls: many(crawl),
-	keywords: many(keyword)
+	keywords: many(keyword),
+	competitors: many(competitor)
+}));
+
+export const competitorRelations = relations(competitor, ({ one }) => ({
+	site: one(site, { fields: [competitor.siteId], references: [site.id] })
 }));
 
 /**
@@ -274,6 +295,7 @@ export type AuditIssue = typeof auditIssue.$inferSelect;
 export type GoogleConnection = typeof googleConnection.$inferSelect;
 export type Keyword = typeof keyword.$inferSelect;
 export type RankSnapshot = typeof rankSnapshot.$inferSelect;
+export type Competitor = typeof competitor.$inferSelect;
 export type SearchIntent = (typeof searchIntent.enumValues)[number];
 export type MemberRole = (typeof memberRole.enumValues)[number];
 export type SiteVerificationStatus = (typeof siteVerificationStatus.enumValues)[number];

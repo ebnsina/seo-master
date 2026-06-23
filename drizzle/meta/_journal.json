@@ -43,6 +43,13 @@
       "when": 1782185347699,
       "tag": "0005_burly_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1782185686768,
+      "tag": "0006_windy_mantis",
+      "breakpoints": true
     }
   ]
 }
