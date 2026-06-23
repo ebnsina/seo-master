@@ -1,5 +1,7 @@
 <script lang="ts">
+	import Bot from '@lucide/svelte/icons/bot';
 	import CircleCheck from '@lucide/svelte/icons/circle-check';
+	import Search from '@lucide/svelte/icons/search';
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import { getCategory, getGuidance, SEVERITY_ORDER } from '$lib/guidance/issues';
 	import type { IssueSeverity } from '$lib/server/db/schema';
@@ -128,17 +130,14 @@
 			<!-- Readiness verdict -->
 			{#if data.readiness}
 				{@const r = data.readiness}
-				<div
-					class="card border-l-4 p-5"
-					style:border-left-color={r.ready ? 'var(--good)' : 'var(--bad)'}
-				>
+				<div class="note p-5 {r.ready ? 'note-good' : 'note-bad'}">
 					<div class="flex items-center gap-2">
 						{#if r.ready}
 							<CircleCheck size={20} class="text-good" />
 						{:else}
 							<TriangleAlert size={20} class="text-bad" />
 						{/if}
-						<h2 class="text-lg text-text">{r.headline}</h2>
+						<h2 class="text-lg {r.ready ? 'text-good' : 'text-bad'}">{r.headline}</h2>
 					</div>
 					<p class="mt-1 text-dim">{r.detail}</p>
 				</div>
@@ -200,33 +199,58 @@
 				</div>
 			{/if}
 
-			<!-- Classic SEO issues -->
+			<!-- Issues, split into Search (SEO) and AI (GEO) -->
 			{#if groups.length === 0}
-				<div class="card flex items-center justify-center gap-2 p-8 text-center text-good">
+				<div
+					class="note note-good flex items-center justify-center gap-2 p-8 text-center text-good"
+				>
 					<CircleCheck size={20} /> No issues found — great work!
 				</div>
 			{:else}
+				<!-- Classic SEO -->
 				{#if seoGroups.length > 0}
-					<div class="space-y-3">
-						<h2 class="text-lg text-text">What to fix</h2>
+					<section class="space-y-3">
+						<div class="flex items-center gap-3">
+							<span
+								class="bg-accent-soft text-accent inline-flex size-9 shrink-0 items-center justify-center rounded-field"
+							>
+								<Search size={18} />
+							</span>
+							<div>
+								<h2 class="text-lg text-text">Search engine SEO</h2>
+								<p class="text-xs text-faint">How Google reads and ranks your site</p>
+							</div>
+						</div>
 						{#each seoGroups as group (group.code)}
 							{@render issueCard(group)}
 						{/each}
-					</div>
+					</section>
 				{/if}
 
-				<!-- AI search readiness (GEO) -->
+				<!-- AI search readiness (GEO) — tinted panel to set it apart -->
 				{#if geoGroups.length > 0}
-					<div class="space-y-3">
-						<h2 class="text-lg text-text">Get found by AI assistants</h2>
-						<p class="-mt-1 text-sm text-dim">
-							“GEO” means making your site easy for AI answer tools (ChatGPT, Claude, Perplexity) to
-							read and cite. Fixing these helps you show up when people ask AI instead of searching.
+					<section class="bg-accent-soft space-y-3 rounded-card p-5">
+						<div class="flex items-center gap-3">
+							<span
+								class="bg-accent inline-flex size-9 shrink-0 items-center justify-center rounded-field text-white"
+							>
+								<Bot size={18} />
+							</span>
+							<div>
+								<h2 class="text-lg text-text">AI search (GEO)</h2>
+								<p class="text-xs text-faint">
+									How ChatGPT, Claude &amp; Perplexity find and cite you
+								</p>
+							</div>
+						</div>
+						<p class="text-sm text-dim">
+							“GEO” means making your site easy for AI answer tools to read and cite. Fixing these
+							helps you show up when people ask AI instead of searching.
 						</p>
 						{#each geoGroups as group (group.code)}
 							{@render issueCard(group)}
 						{/each}
-					</div>
+					</section>
 				{/if}
 			{/if}
 		{/if}

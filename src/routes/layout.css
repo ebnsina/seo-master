@@ -38,6 +38,10 @@
 	--good: #1c9a55;
 	--warn: #c2820a;
 	--bad: #d6443a;
+	/* Soft status tints — for callouts/cards (background, no border) */
+	--good-soft: rgba(28, 154, 85, 0.12);
+	--warn-soft: rgba(194, 130, 10, 0.13);
+	--bad-soft: rgba(214, 68, 58, 0.1);
 
 	/* Shape — generous radii + soft diffuse shadows */
 	--radius: 18px;
@@ -77,6 +81,9 @@
 	--color-good: var(--good);
 	--color-warn: var(--warn);
 	--color-bad: var(--bad);
+	--color-good-soft: var(--good-soft);
+	--color-warn-soft: var(--warn-soft);
+	--color-bad-soft: var(--bad-soft);
 
 	--radius-card: var(--radius);
 	--radius-field: var(--radius-sm);
@@ -185,6 +192,7 @@ button {
 	padding: 9px 16px;
 	border-radius: var(--radius-sm);
 	border: 1px solid var(--border-strong);
+	white-space: nowrap;
 	text-decoration: none;
 	background: var(--bg-elev);
 	color: var(--text);
@@ -249,6 +257,25 @@ button {
 	background: rgba(61, 220, 151, 0.14);
 	color: var(--good);
 	border-color: rgba(61, 220, 151, 0.25);
+}
+
+/* Callouts — soft tinted backgrounds (no border) for status & guidance.
+   Pair with text-good / text-warn / text-bad / text-accent on the heading. */
+.note {
+	border-radius: var(--radius);
+	padding: 16px 18px;
+}
+.note-good {
+	background: var(--good-soft);
+}
+.note-warn {
+	background: var(--warn-soft);
+}
+.note-bad {
+	background: var(--bad-soft);
+}
+.note-info {
+	background: var(--accent-soft);
 }
 
 .muted {

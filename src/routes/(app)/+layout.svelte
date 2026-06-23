@@ -63,7 +63,9 @@
 
 <div class="flex min-h-screen">
 	<!-- Desktop sidebar -->
-	<aside class="bg-elev border-line hidden w-64 shrink-0 border-r md:block">
+	<aside
+		class="bg-elev border-line hidden w-64 shrink-0 border-r md:sticky md:top-0 md:block md:h-screen md:overflow-y-auto"
+	>
 		{@render sidebar()}
 	</aside>
 

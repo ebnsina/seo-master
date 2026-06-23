@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import SiteNav from '../SiteNav.svelte';
+	import { connectGoogle } from '../google.remote';
 	import { getRankings, refreshRankings, type RefreshResult } from '../rankings.remote';
 	import type { PageData } from './$types';
 
@@ -9,6 +10,7 @@
 	const rankings = $derived(getRankings(data.siteId));
 	let result = $state<RefreshResult | null>(null);
 	let busy = $state(false);
+	let connecting = $state(false);
 
 	async function refresh() {
 		busy = true;
@@ -16,6 +18,16 @@
 			result = await refreshRankings(data.siteId);
 		} finally {
 			busy = false;
+		}
+	}
+
+	async function connect() {
+		connecting = true;
+		try {
+			const { authUrl } = await connectGoogle(data.siteId);
+			window.location.href = authUrl;
+		} catch {
+			connecting = false;
 		}
 	}
 
@@ -46,6 +58,18 @@
 		<p class="text-sm {result.ok ? 'text-good' : 'text-bad'}">{result.message}</p>
 	{/if}
 
+	{#if rankings.ready && !rankings.current.connected}
+		<div class="note note-warn flex flex-wrap items-center justify-between gap-3 p-4">
+			<p class="text-sm text-dim">
+				<strong class="text-warn">Google isn’t connected.</strong> Connect Search Console to pull your
+				real positions, clicks and impressions.
+			</p>
+			<button onclick={connect} disabled={connecting} class="btn btn-primary text-sm">
+				{connecting ? 'Connecting…' : 'Connect Google'}
+			</button>
+		</div>
+	{/if}
+
 	{#if rankings.error}
 		<div class="card p-6 text-bad">Couldn’t load rankings.</div>
 	{:else if !rankings.ready}
@@ -64,17 +88,6 @@
 			</a>
 		</div>
 	{:else}
-		{#if !rankings.current.connected}
-			<div class="card p-4 text-sm text-dim">
-				Connect Google Search Console on the
-				<a
-					href={resolve('/(app)/sites/[siteId]', { siteId: data.siteId })}
-					class="text-accent underline">site report</a
-				>
-				to pull your real rankings.
-			</div>
-		{/if}
-
 		<div class="card overflow-hidden">
 			<table class="w-full text-sm">
 				<thead class="border-b border-line text-left text-xs text-faint uppercase">

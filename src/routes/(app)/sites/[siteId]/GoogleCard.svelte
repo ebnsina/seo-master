@@ -69,9 +69,9 @@
 	<h2 class="text-lg text-text">Get found on Google</h2>
 
 	{#if oauthResult === 'connected'}
-		<p class="mt-1 text-sm text-good">✅ Google account connected.</p>
+		<p class="note note-good mt-3 text-sm text-good">Google account connected.</p>
 	{:else if oauthResult === 'error'}
-		<p class="mt-1 text-sm text-bad">Couldn’t connect to Google. Please try again.</p>
+		<p class="note note-bad mt-3 text-sm text-bad">Couldn’t connect to Google. Please try again.</p>
 	{/if}
 
 	{#if status.loading || !status.ready}
