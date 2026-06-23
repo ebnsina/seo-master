@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import Check from '@lucide/svelte/icons/check';
+	import PartyPopper from '@lucide/svelte/icons/party-popper';
 	import { quickAddSite } from '../sites.remote';
 	import { startAudit } from '../sites/[siteId]/audit.remote';
 
@@ -57,7 +59,7 @@
 					class:bg-elev-2={step < n}
 					class:text-faint={step < n}
 				>
-					{step > n ? '✓' : n}
+					{#if step > n}<Check size={16} />{:else}{n}{/if}
 				</span>
 				<span class="text-sm" class:text-text={step >= n} class:text-faint={step < n}>{label}</span>
 				{#if n < stepLabels.length}<span class="border-line ml-1 h-px flex-1 border-t"></span>{/if}
@@ -95,8 +97,12 @@
 		</button>
 	{:else}
 		<div class="text-center">
-			<div class="text-5xl">🎉</div>
-			<h1 class="font-display mt-4 text-3xl text-text">You’re all set!</h1>
+			<div
+				class="bg-accent-soft text-accent mx-auto inline-flex size-16 items-center justify-center rounded-field"
+			>
+				<PartyPopper size={30} />
+			</div>
+			<h1 class="font-display mt-5 text-3xl text-text">You’re all set!</h1>
 			<p class="mt-3 text-lg text-dim">
 				Your audit is running. In a minute you’ll see your health score and a prioritized list of
 				fixes — each explained simply.

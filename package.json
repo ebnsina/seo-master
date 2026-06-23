@@ -46,6 +46,7 @@
 		"@fontsource-variable/geist-mono": "^5.2.8",
 		"@fontsource-variable/inter-tight": "^5.2.7",
 		"@fontsource-variable/sora": "^5.2.8",
+		"@lucide/svelte": "^1.21.0",
 		"@tanstack/ai": "^0.33.0",
 		"@tanstack/ai-anthropic": "^0.15.6",
 		"@tanstack/ai-gemini": "^0.17.1",

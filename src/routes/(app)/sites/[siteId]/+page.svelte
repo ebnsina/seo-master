@@ -1,4 +1,6 @@
 <script lang="ts">
+	import CircleCheck from '@lucide/svelte/icons/circle-check';
+	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import { getCategory, getGuidance, SEVERITY_ORDER } from '$lib/guidance/issues';
 	import type { IssueSeverity } from '$lib/server/db/schema';
 	import { getAudit, startAudit } from './audit.remote';
@@ -131,7 +133,11 @@
 					style:border-left-color={r.ready ? 'var(--good)' : 'var(--bad)'}
 				>
 					<div class="flex items-center gap-2">
-						<span class="text-lg">{r.ready ? '✅' : '⚠️'}</span>
+						{#if r.ready}
+							<CircleCheck size={20} class="text-good" />
+						{:else}
+							<TriangleAlert size={20} class="text-bad" />
+						{/if}
 						<h2 class="text-lg text-text">{r.headline}</h2>
 					</div>
 					<p class="mt-1 text-dim">{r.detail}</p>
@@ -196,7 +202,9 @@
 
 			<!-- Classic SEO issues -->
 			{#if groups.length === 0}
-				<div class="card p-8 text-center text-good">🎉 No issues found — great work!</div>
+				<div class="card flex items-center justify-center gap-2 p-8 text-center text-good">
+					<CircleCheck size={20} /> No issues found — great work!
+				</div>
 			{:else}
 				{#if seoGroups.length > 0}
 					<div class="space-y-3">
