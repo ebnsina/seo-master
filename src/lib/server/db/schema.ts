@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import {
+	boolean,
 	date,
 	doublePrecision,
 	integer,
@@ -41,6 +42,8 @@ export const user = pgTable('user', {
 	email: text('email').notNull().unique(),
 	passwordHash: text('password_hash').notNull(),
 	name: text('name').notNull(),
+	/** Opt-in to the weekly SEO summary email (requires SMTP configured). */
+	weeklyReport: boolean('weekly_report').notNull().default(false),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 });
 

@@ -12,6 +12,7 @@
 		page.url.pathname === '/dashboard' || page.url.pathname.startsWith('/sites')
 	);
 	const onSetup = $derived(page.url.pathname.startsWith('/welcome'));
+	const onSettings = $derived(page.url.pathname.startsWith('/settings'));
 
 	function close() {
 		drawerOpen = false;
@@ -51,6 +52,16 @@
 				class:text-dim={!onWebsites}
 			>
 				Websites
+			</a>
+			<a
+				href={resolve('/settings')}
+				onclick={close}
+				class="block rounded-field px-3 py-2.5 text-sm font-medium transition"
+				class:bg-accent-soft={onSettings}
+				class:text-accent={onSettings}
+				class:text-dim={!onSettings}
+			>
+				Settings
 			</a>
 		</nav>
 

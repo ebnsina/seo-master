@@ -1,9 +1,17 @@
 import { Worker } from 'bullmq';
 import { getConnection, isQueueEnabled } from './connection';
-import { CRAWL_QUEUE, RANK_QUEUE, enqueueRankRefresh, scheduleDailyRankSweep } from './queues';
+import {
+	CRAWL_QUEUE,
+	RANK_QUEUE,
+	REPORT_QUEUE,
+	enqueueRankRefresh,
+	scheduleDailyRankSweep,
+	scheduleWeeklyReports
+} from './queues';
 import { runCrawl } from '$lib/server/audit/run';
 import { getSiteById } from '$lib/server/sites/service';
 import { refreshSiteRankings, sitesNeedingRankRefresh } from '$lib/server/rankings/service';
+import { sendWeeklyReports } from '$lib/server/email/report';
 
 /** Persist the "started" flag on globalThis so HMR / re-imports don't double-start workers. */
 const globalState = globalThis as unknown as { __seomasterWorkers?: boolean };
@@ -41,5 +49,14 @@ export function startWorkers(): void {
 		{ connection }
 	);
 
+	new Worker(
+		REPORT_QUEUE,
+		async () => {
+			await sendWeeklyReports();
+		},
+		{ connection }
+	);
+
 	void scheduleDailyRankSweep();
+	void scheduleWeeklyReports();
 }

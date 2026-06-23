@@ -58,5 +58,20 @@ export const variables = defineEnvVars({
 	AI_API_KEY: {
 		description: 'API key for the chosen AI provider (not needed for ollama).',
 		schema: optional
+	},
+
+	// Email (optional). Set all four SMTP_* to enable transactional/weekly-report
+	// email; without them, email features are simply hidden. BYO SMTP provider.
+	SMTP_HOST: { description: 'SMTP server host for outgoing email (optional).', schema: optional },
+	SMTP_PORT: { description: 'SMTP server port (optional, defaults to 587).', schema: optional },
+	SMTP_USER: { description: 'SMTP username (optional).', schema: optional },
+	SMTP_PASS: { description: 'SMTP password (optional).', schema: optional },
+	MAIL_FROM: {
+		description: 'From address for outgoing email, e.g. "SEOMaster <hi@example.com>" (optional).',
+		schema: optional
+	},
+	APP_URL: {
+		description: 'Public base URL (e.g. https://app.example.com) for links in emails (optional).',
+		schema: optional
 	}
 });
