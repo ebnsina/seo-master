@@ -25,6 +25,9 @@ export const crawlStatus = pgEnum('crawl_status', ['queued', 'running', 'complet
 /** How serious an audit finding is. */
 export const issueSeverity = pgEnum('issue_severity', ['critical', 'warning', 'notice']);
 
+/** Kinds of on-demand analysis whose latest result we cache per site. */
+export const analysisKind = pgEnum('analysis_kind', ['competitors', 'links']);
+
 /** What a searcher is trying to do — drives content strategy. */
 export const searchIntent = pgEnum('search_intent', [
 	'informational',
@@ -309,6 +312,29 @@ export const memberRelations = relations(member, ({ one }) => ({
 
 export const sessionRelations = relations(session, ({ one }) => ({
 	user: one(user, { fields: [session.userId], references: [user.id] })
+}));
+
+/**
+ * Caches the latest result of an on-demand analysis (competitor gap, internal
+ * links) per site, so results survive page reloads. One row per (site, kind);
+ * re-running an analysis overwrites it.
+ */
+export const analysisSnapshot = pgTable(
+	'analysis_snapshot',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		siteId: uuid('site_id')
+			.notNull()
+			.references(() => site.id, { onDelete: 'cascade' }),
+		kind: analysisKind('kind').notNull(),
+		data: jsonb('data').notNull(),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [uniqueIndex('analysis_site_kind_idx').on(t.siteId, t.kind)]
+);
+
+export const analysisSnapshotRelations = relations(analysisSnapshot, ({ one }) => ({
+	site: one(site, { fields: [analysisSnapshot.siteId], references: [site.id] })
 }));
 
 export type User = typeof user.$inferSelect;

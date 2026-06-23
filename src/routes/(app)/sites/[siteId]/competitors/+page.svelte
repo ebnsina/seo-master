@@ -9,21 +9,29 @@
 		addCompetitor,
 		analyzeCompetitors,
 		getCompetitors,
+		getLastAnalysis,
 		removeCompetitor
 	} from '../competitors.remote';
 	import { createBrief } from '../content.remote';
+	import { formatWhen } from '$lib/format';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
 	const competitors = $derived(getCompetitors(data.siteId));
+	const last = $derived(getLastAnalysis(data.siteId));
 
 	let url = $state('');
 	let addError = $state<string | null>(null);
 	let addBusy = $state(false);
 
-	let analysis = $state<Awaited<ReturnType<typeof analyzeCompetitors>> | null>(null);
+	// A freshly-run analysis takes precedence over the persisted one.
+	let fresh = $state<Awaited<ReturnType<typeof analyzeCompetitors>> | null>(null);
+	let freshAt = $state<Date | null>(null);
 	let analyzing = $state(false);
+
+	const analysis = $derived(fresh ?? (last.ready ? (last.current?.data ?? null) : null));
+	const analyzedAt = $derived(freshAt ?? (last.ready ? (last.current?.createdAt ?? null) : null));
 
 	// Track which opportunity topics have been turned into briefs (by term).
 	let briefed = $state<Record<string, 'busy' | 'done'>>({});
@@ -46,7 +54,8 @@
 		analyzing = true;
 		briefed = {};
 		try {
-			analysis = await analyzeCompetitors(data.siteId);
+			fresh = await analyzeCompetitors(data.siteId);
+			freshAt = new Date();
 		} finally {
 			analyzing = false;
 		}
@@ -152,6 +161,9 @@
 				>
 			</div>
 		{:else}
+			{#if analyzedAt}
+				<p class="text-xs text-faint">Last analyzed {formatWhen(analyzedAt)}.</p>
+			{/if}
 			<!-- Head-to-head scoreboard -->
 			<div class="card overflow-hidden">
 				<div class="border-b border-line p-5">

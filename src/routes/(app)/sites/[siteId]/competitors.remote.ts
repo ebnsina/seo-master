@@ -9,8 +9,10 @@ import {
 	addCompetitor as addCompetitorRow,
 	analyzeCompetitors as runAnalysis,
 	listCompetitors,
-	removeCompetitor as removeCompetitorRow
+	removeCompetitor as removeCompetitorRow,
+	type AnalysisResult
 } from '$lib/server/competitors/service';
+import { loadAnalysis, saveAnalysis } from '$lib/server/analysis/store';
 
 const siteIdSchema = z.string().uuid();
 
@@ -58,9 +60,23 @@ export const removeCompetitor = command(
 	}
 );
 
+/** The last stored competitor analysis for a site, with when it was run. */
+export const getLastAnalysis = query(siteIdSchema, async (siteId) => {
+	const { organization } = await requireActiveOrg();
+	const site = await getSiteForOrg(organization.id, siteId);
+	if (!site) error(404, 'Website not found.');
+	return loadAnalysis<AnalysisResult>(siteId, 'competitors');
+});
+
 export const analyzeCompetitors = command(siteIdSchema, async (siteId) => {
 	const { organization } = await requireActiveOrg();
 	const site = await getSiteForOrg(organization.id, siteId);
 	if (!site) error(404, 'Website not found.');
-	return runAnalysis(site);
+	const result = await runAnalysis(site);
+	// Only cache real analyses, not the "needs setup" placeholders.
+	if (result.analyzed) {
+		await saveAnalysis(siteId, 'competitors', result);
+		await getLastAnalysis(siteId).refresh();
+	}
+	return result;
 });

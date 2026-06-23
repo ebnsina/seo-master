@@ -1,18 +1,26 @@
 <script lang="ts">
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import SiteNav from '../SiteNav.svelte';
-	import { analyzeLinks } from '../links.remote';
+	import { analyzeLinks, getLastLinkAnalysis } from '../links.remote';
+	import { formatWhen } from '$lib/format';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	let analysis = $state<Awaited<ReturnType<typeof analyzeLinks>> | null>(null);
+	const last = $derived(getLastLinkAnalysis(data.siteId));
+
+	let fresh = $state<Awaited<ReturnType<typeof analyzeLinks>> | null>(null);
+	let freshAt = $state<Date | null>(null);
 	let analyzing = $state(false);
+
+	const analysis = $derived(fresh ?? (last.ready ? (last.current?.data ?? null) : null));
+	const analyzedAt = $derived(freshAt ?? (last.ready ? (last.current?.createdAt ?? null) : null));
 
 	async function analyze() {
 		analyzing = true;
 		try {
-			analysis = await analyzeLinks(data.siteId);
+			fresh = await analyzeLinks(data.siteId);
+			freshAt = new Date();
 		} finally {
 			analyzing = false;
 		}
@@ -56,7 +64,9 @@
 				linked pages, then try again.
 			</div>
 		{:else}
-			<p class="text-sm text-faint">{analysis.pagesAnalyzed} pages analyzed.</p>
+			<p class="text-sm text-faint">
+				{analysis.pagesAnalyzed} pages analyzed{analyzedAt ? ` · ${formatWhen(analyzedAt)}` : ''}.
+			</p>
 
 			<!-- Orphan pages -->
 			<div class="card p-5">

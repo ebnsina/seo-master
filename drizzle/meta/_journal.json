@@ -71,6 +71,13 @@
       "when": 1782188185974,
       "tag": "0009_friendly_wild_pack",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1782198120102,
+      "tag": "0010_flat_starjammers",
+      "breakpoints": true
     }
   ]
 }
