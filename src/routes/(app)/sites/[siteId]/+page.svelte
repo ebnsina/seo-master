@@ -9,6 +9,7 @@
 	import GoogleCard from './GoogleCard.svelte';
 	import IssueFix from './IssueFix.svelte';
 	import SiteNav from './SiteNav.svelte';
+	import SiteProgress from './SiteProgress.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -109,6 +110,8 @@
 				{running ? 'Auditing…' : data.audit ? 'Re-run audit' : 'Run audit'}
 			</button>
 		</div>
+
+		<SiteProgress siteId={data.site.id} />
 
 		{#if running}
 			<div class="card p-8 text-center text-dim">
