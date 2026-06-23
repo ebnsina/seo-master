@@ -92,6 +92,8 @@ export const site = pgTable(
 		/** Full normalized origin used for crawling, e.g. `https://example.com`. */
 		url: text('url').notNull(),
 		verificationStatus: siteVerificationStatus('verification_status').notNull().default('pending'),
+		/** Connected GA4 property, e.g. `properties/123456789` (null until chosen). */
+		ga4PropertyId: text('ga4_property_id'),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
 	},
 	(t) => [uniqueIndex('site_org_domain_idx').on(t.organizationId, t.domain)]

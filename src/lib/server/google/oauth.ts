@@ -12,6 +12,7 @@ const USERINFO_ENDPOINT = 'https://www.googleapis.com/oauth2/v2/userinfo';
 export const GOOGLE_SCOPES = [
 	'https://www.googleapis.com/auth/webmasters',
 	'https://www.googleapis.com/auth/siteverification',
+	'https://www.googleapis.com/auth/analytics.readonly',
 	'openid',
 	'email'
 ];

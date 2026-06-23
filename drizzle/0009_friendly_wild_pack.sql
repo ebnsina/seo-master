@@ -1,0 +1,1 @@
+ALTER TABLE "site" ADD COLUMN "ga4_property_id" text;

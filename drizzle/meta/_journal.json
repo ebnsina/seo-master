@@ -64,6 +64,13 @@
       "when": 1782187879738,
       "tag": "0008_acoustic_reptil",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1782188185974,
+      "tag": "0009_friendly_wild_pack",
+      "breakpoints": true
     }
   ]
 }

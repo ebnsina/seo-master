@@ -117,6 +117,18 @@ export async function markSiteVerified(organizationId: string, siteId: string): 
 		.where(and(eq(site.organizationId, organizationId), eq(site.id, siteId)));
 }
 
+/** Set (or clear) the connected GA4 property for a site (org-scoped). */
+export async function setGa4Property(
+	organizationId: string,
+	siteId: string,
+	propertyId: string | null
+): Promise<void> {
+	await db
+		.update(site)
+		.set({ ga4PropertyId: propertyId })
+		.where(and(eq(site.organizationId, organizationId), eq(site.id, siteId)));
+}
+
 /** Delete a site, scoped to its org. Returns true if a row was removed. */
 export async function deleteSite(organizationId: string, siteId: string): Promise<boolean> {
 	const deleted = await db

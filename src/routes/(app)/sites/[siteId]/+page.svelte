@@ -121,6 +121,12 @@
 			>
 				Content
 			</a>
+			<a
+				href={resolve('/(app)/sites/[siteId]/analytics', { siteId: data.site.id })}
+				class="btn text-sm"
+			>
+				Analytics
+			</a>
 			<button
 				onclick={runAudit}
 				disabled={running || startAudit.pending > 0}
