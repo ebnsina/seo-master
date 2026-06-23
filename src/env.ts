@@ -35,9 +35,15 @@ export const variables = defineEnvVars({
 	},
 	DATAFORSEO_PASSWORD: { description: 'DataForSEO account password (optional).', schema: optional },
 
-	// AI content drafting (optional, BYOK). Brief generation works without it.
-	ANTHROPIC_API_KEY: {
-		description: 'Anthropic API key for AI content drafts (optional, BYOK).',
+	// AI content drafting (optional, provider-agnostic via TanStack AI).
+	// Choose any provider — Anthropic is not required. Brief generation works without it.
+	AI_PROVIDER: {
+		description: 'AI provider for content drafts: openai | anthropic | gemini | ollama (optional).',
+		schema: z.enum(['openai', 'anthropic', 'gemini', 'ollama']).optional()
+	},
+	AI_MODEL: { description: 'Model id for the chosen AI provider (optional).', schema: optional },
+	AI_API_KEY: {
+		description: 'API key for the chosen AI provider (not needed for ollama).',
 		schema: optional
 	}
 });

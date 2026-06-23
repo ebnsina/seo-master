@@ -43,10 +43,14 @@
 		"vite": "^8.0.16"
 	},
 	"dependencies": {
-		"@anthropic-ai/sdk": "^0.105.0",
 		"@fontsource-variable/geist-mono": "^5.2.8",
 		"@fontsource-variable/inter-tight": "^5.2.7",
 		"@fontsource-variable/sora": "^5.2.8",
+		"@tanstack/ai": "^0.33.0",
+		"@tanstack/ai-anthropic": "^0.15.6",
+		"@tanstack/ai-gemini": "^0.17.1",
+		"@tanstack/ai-ollama": "^0.8.6",
+		"@tanstack/ai-openai": "^0.15.3",
 		"@tanstack/svelte-query": "^6.1.34",
 		"cheerio": "^1.2.0",
 		"zod": "^4.4.3"
