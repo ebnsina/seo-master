@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import Bot from '@lucide/svelte/icons/bot';
 	import CircleCheck from '@lucide/svelte/icons/circle-check';
+	import FileDown from '@lucide/svelte/icons/file-down';
 	import Search from '@lucide/svelte/icons/search';
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import { getCategory, getGuidance, SEVERITY_ORDER } from '$lib/guidance/issues';
@@ -102,13 +104,20 @@
 				</div>
 				<span class="mono text-sm text-dim">{data.site.url}</span>
 			</div>
-			<button
-				onclick={runAudit}
-				disabled={running || startAudit.pending > 0}
-				class="btn btn-primary"
-			>
-				{running ? 'Auditing…' : data.audit ? 'Re-run audit' : 'Run audit'}
-			</button>
+			<div class="flex flex-wrap items-center gap-2">
+				{#if data.audit}
+					<a href={resolve('/(app)/sites/[siteId]/report', { siteId: data.site.id })} class="btn">
+						<FileDown size={15} /> Report
+					</a>
+				{/if}
+				<button
+					onclick={runAudit}
+					disabled={running || startAudit.pending > 0}
+					class="btn btn-primary"
+				>
+					{running ? 'Auditing…' : data.audit ? 'Re-run audit' : 'Run audit'}
+				</button>
+			</div>
 		</div>
 
 		<SiteProgress siteId={data.site.id} />

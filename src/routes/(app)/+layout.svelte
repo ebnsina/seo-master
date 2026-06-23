@@ -64,7 +64,7 @@
 <div class="flex min-h-screen">
 	<!-- Desktop sidebar -->
 	<aside
-		class="bg-elev border-line hidden w-64 shrink-0 border-r md:sticky md:top-0 md:block md:h-screen md:overflow-y-auto"
+		class="bg-elev border-line hidden w-64 shrink-0 border-r md:sticky md:top-0 md:block md:h-screen md:overflow-y-auto print:!hidden"
 	>
 		{@render sidebar()}
 	</aside>
@@ -80,7 +80,9 @@
 
 	<div class="flex min-w-0 flex-1 flex-col">
 		<!-- Mobile top bar -->
-		<header class="bg-elev border-line flex items-center gap-3 border-b px-4 py-3 md:hidden">
+		<header
+			class="bg-elev border-line flex items-center gap-3 border-b px-4 py-3 md:hidden print:!hidden"
+		>
 			<button onclick={() => (drawerOpen = true)} aria-label="Open menu" class="text-text">
 				<svg
 					width="22"
