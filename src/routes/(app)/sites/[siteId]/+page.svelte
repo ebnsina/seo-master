@@ -97,6 +97,12 @@
 				</div>
 				<span class="mono text-sm text-dim">{data.site.url}</span>
 			</div>
+			<a
+				href={resolve('/(app)/sites/[siteId]/keywords', { siteId: data.site.id })}
+				class="btn text-sm"
+			>
+				Keyword research
+			</a>
 			<button
 				onclick={runAudit}
 				disabled={running || startAudit.pending > 0}

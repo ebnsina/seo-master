@@ -1,5 +1,14 @@
 import { relations } from 'drizzle-orm';
-import { integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import {
+	doublePrecision,
+	integer,
+	pgEnum,
+	pgTable,
+	text,
+	timestamp,
+	uniqueIndex,
+	uuid
+} from 'drizzle-orm/pg-core';
 
 /** Roles a user can hold within an organization. */
 export const memberRole = pgEnum('member_role', ['owner', 'editor', 'viewer']);
@@ -12,6 +21,14 @@ export const crawlStatus = pgEnum('crawl_status', ['queued', 'running', 'complet
 
 /** How serious an audit finding is. */
 export const issueSeverity = pgEnum('issue_severity', ['critical', 'warning', 'notice']);
+
+/** What a searcher is trying to do — drives content strategy. */
+export const searchIntent = pgEnum('search_intent', [
+	'informational',
+	'commercial',
+	'transactional',
+	'navigational'
+]);
 
 export const user = pgTable('user', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -144,6 +161,26 @@ export const googleConnection = pgTable('google_connection', {
 	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
 
+/** A keyword saved to a site for tracking / content planning. */
+export const keyword = pgTable(
+	'keyword',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		siteId: uuid('site_id')
+			.notNull()
+			.references(() => site.id, { onDelete: 'cascade' }),
+		phrase: text('phrase').notNull(),
+		intent: searchIntent('intent').notNull().default('informational'),
+		/** Monthly search volume (null until a metrics provider is connected). */
+		volume: integer('volume'),
+		/** Competition/difficulty 0–100 (null until enriched). */
+		difficulty: integer('difficulty'),
+		cpc: doublePrecision('cpc'),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [uniqueIndex('keyword_site_phrase_idx').on(t.siteId, t.phrase)]
+);
+
 export const userRelations = relations(user, ({ many }) => ({
 	memberships: many(member),
 	sessions: many(session)
@@ -163,7 +200,12 @@ export const siteRelations = relations(site, ({ one, many }) => ({
 		fields: [site.organizationId],
 		references: [organization.id]
 	}),
-	crawls: many(crawl)
+	crawls: many(crawl),
+	keywords: many(keyword)
+}));
+
+export const keywordRelations = relations(keyword, ({ one }) => ({
+	site: one(site, { fields: [keyword.siteId], references: [site.id] })
 }));
 
 export const crawlRelations = relations(crawl, ({ one, many }) => ({
@@ -201,6 +243,8 @@ export type Crawl = typeof crawl.$inferSelect;
 export type Page = typeof page.$inferSelect;
 export type AuditIssue = typeof auditIssue.$inferSelect;
 export type GoogleConnection = typeof googleConnection.$inferSelect;
+export type Keyword = typeof keyword.$inferSelect;
+export type SearchIntent = (typeof searchIntent.enumValues)[number];
 export type MemberRole = (typeof memberRole.enumValues)[number];
 export type SiteVerificationStatus = (typeof siteVerificationStatus.enumValues)[number];
 export type CrawlStatus = (typeof crawlStatus.enumValues)[number];

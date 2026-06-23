@@ -25,5 +25,13 @@ export const variables = defineEnvVars({
 	APP_ENCRYPTION_KEY: {
 		description: 'Base64-encoded 32-byte key used to encrypt stored OAuth tokens (optional).',
 		schema: optional
-	}
+	},
+
+	// Keyword metrics provider (optional). Without these, keyword research still
+	// returns ideas + intent + clusters, just no search volume / difficulty.
+	DATAFORSEO_LOGIN: {
+		description: 'DataForSEO account login for keyword metrics (optional).',
+		schema: optional
+	},
+	DATAFORSEO_PASSWORD: { description: 'DataForSEO account password (optional).', schema: optional }
 });
