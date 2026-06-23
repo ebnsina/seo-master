@@ -15,6 +15,12 @@ export const variables = defineEnvVars({
 		schema: optional
 	},
 
+	// PageSpeed Insights — optional key for higher rate limits (works without it).
+	PAGESPEED_API_KEY: {
+		description: 'Google PageSpeed Insights API key (optional).',
+		schema: optional
+	},
+
 	// Google Search Console integration. All optional — when unset, the app
 	// falls back to guided manual submission instead of the API flow.
 	GOOGLE_CLIENT_ID: {

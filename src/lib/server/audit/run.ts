@@ -3,7 +3,8 @@ import { db } from '$lib/server/db';
 import { auditIssue, crawl, page, site } from '$lib/server/db/schema';
 import { crawlSite } from '$lib/server/crawler';
 import { isLocalHostname } from '$lib/server/sites/service';
-import { runAuditRules } from './rules';
+import { CWV_THRESHOLDS, fetchPageSpeed } from '$lib/server/pagespeed/client';
+import { runAuditRules, type Finding } from './rules';
 import { computeHealthScore, severityForCode } from './score';
 
 /**
@@ -29,6 +30,22 @@ export async function runCrawl(crawlId: string): Promise<void> {
 		const result = await crawlSite(target.url);
 		const isLocal = isLocalHostname(new URL(target.url).hostname);
 		const findings = runAuditRules({ ...result, isLocal });
+
+		// PageSpeed / Core Web Vitals (best-effort) — adds metrics + speed findings.
+		const speed = isLocal ? null : await fetchPageSpeed(target.url);
+		if (speed) {
+			const cwv: Finding[] = [];
+			if (
+				speed.performanceScore != null &&
+				speed.performanceScore < CWV_THRESHOLDS.performanceScore
+			)
+				cwv.push({ code: 'slow_site', detail: `Performance score ${speed.performanceScore}/100` });
+			if (speed.lcpMs != null && speed.lcpMs > CWV_THRESHOLDS.lcpMs)
+				cwv.push({ code: 'poor_lcp', detail: `${(speed.lcpMs / 1000).toFixed(1)}s` });
+			if (speed.clsScore != null && speed.clsScore > CWV_THRESHOLDS.clsScore)
+				cwv.push({ code: 'poor_cls', detail: speed.clsScore.toFixed(2) });
+			findings.push(...cwv);
+		}
 
 		const issueRows = findings.map((f) => ({
 			crawlId,
@@ -61,6 +78,10 @@ export async function runCrawl(crawlId: string): Promise<void> {
 				status: 'completed',
 				healthScore: score,
 				pagesCrawled: result.pages.length,
+				performanceScore: speed?.performanceScore ?? null,
+				lcpMs: speed?.lcpMs ?? null,
+				clsScore: speed?.clsScore ?? null,
+				tbtMs: speed?.tbtMs ?? null,
 				finishedAt: new Date()
 			})
 			.where(eq(crawl.id, crawlId));

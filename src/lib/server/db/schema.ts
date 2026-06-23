@@ -107,6 +107,11 @@ export const crawl = pgTable('crawl', {
 	/** 0–100, null until the crawl completes. */
 	healthScore: integer('health_score'),
 	pagesCrawled: integer('pages_crawled').notNull().default(0),
+	/** PageSpeed Insights lab metrics (null when unavailable). */
+	performanceScore: integer('performance_score'),
+	lcpMs: integer('lcp_ms'),
+	clsScore: doublePrecision('cls_score'),
+	tbtMs: integer('tbt_ms'),
 	error: text('error'),
 	startedAt: timestamp('started_at', { withTimezone: true }),
 	finishedAt: timestamp('finished_at', { withTimezone: true }),

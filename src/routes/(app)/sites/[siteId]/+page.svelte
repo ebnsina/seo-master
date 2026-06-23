@@ -184,6 +184,41 @@
 				</div>
 			</div>
 
+			<!-- Speed & Core Web Vitals -->
+			{#if data.audit.crawl.performanceScore != null}
+				{@const c = data.audit.crawl}
+				<div class="card p-5">
+					<h2 class="text-lg text-text">Speed &amp; Core Web Vitals</h2>
+					<p class="mt-1 text-sm text-dim">
+						From Google PageSpeed (mobile). Faster loads and stable layouts rank better.
+					</p>
+					<div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+						<div class="rounded-field bg-elev-2 p-3 text-center">
+							<div class="text-2xl font-semibold {scoreColor(c.performanceScore ?? 0)}">
+								{c.performanceScore}
+							</div>
+							<div class="text-xs text-dim">Performance</div>
+						</div>
+						<div class="rounded-field bg-elev-2 p-3 text-center">
+							<div class="text-2xl font-semibold text-text">
+								{c.lcpMs != null ? `${(c.lcpMs / 1000).toFixed(1)}s` : '—'}
+							</div>
+							<div class="text-xs text-dim">LCP (load)</div>
+						</div>
+						<div class="rounded-field bg-elev-2 p-3 text-center">
+							<div class="text-2xl font-semibold text-text">{c.clsScore?.toFixed(2) ?? '—'}</div>
+							<div class="text-xs text-dim">CLS (shift)</div>
+						</div>
+						<div class="rounded-field bg-elev-2 p-3 text-center">
+							<div class="text-2xl font-semibold text-text">
+								{c.tbtMs != null ? `${c.tbtMs}ms` : '—'}
+							</div>
+							<div class="text-xs text-dim">TBT (blocking)</div>
+						</div>
+					</div>
+				</div>
+			{/if}
+
 			<!-- Classic SEO issues -->
 			{#if groups.length === 0}
 				<div class="card p-8 text-center text-good">🎉 No issues found — great work!</div>

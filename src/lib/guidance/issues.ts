@@ -228,6 +228,48 @@ export const ISSUE_GUIDANCE = {
 			'Most CMS SEO plugins can add this for you.'
 		]
 	},
+	slow_site: {
+		title: 'Your site loads slowly',
+		severity: 'warning',
+		scope: 'site',
+		difficulty: 'technical',
+		whatItIs: 'Google measured your page speed and it scored low on performance.',
+		whyItMatters:
+			'Slow pages frustrate visitors (many leave before it loads) and Google ranks fast sites higher.',
+		howToFix: [
+			'Compress and resize large images.',
+			'Reduce unused JavaScript and CSS.',
+			'Use a CDN and enable caching. Your developer or host can help.'
+		]
+	},
+	poor_lcp: {
+		title: 'Main content appears too slowly',
+		severity: 'warning',
+		scope: 'site',
+		difficulty: 'technical',
+		whatItIs:
+			'“Largest Contentful Paint” measures how long until the biggest thing on the page shows. Yours is over 2.5 seconds.',
+		whyItMatters:
+			'It’s a Core Web Vital Google uses for ranking, and it’s what visitors feel as “slow”.',
+		howToFix: [
+			'Optimise your largest image or hero element (compress, set dimensions, lazy-load below the fold).',
+			'Improve server response time and use caching/CDN.'
+		]
+	},
+	poor_cls: {
+		title: 'Your layout shifts as it loads',
+		severity: 'warning',
+		scope: 'site',
+		difficulty: 'technical',
+		whatItIs:
+			'“Cumulative Layout Shift” measures how much the page jumps around while loading. Yours is above the safe limit.',
+		whyItMatters:
+			'Shifting layouts make people mis-tap and feel janky — another Core Web Vital Google measures.',
+		howToFix: [
+			'Set explicit width/height on images and embeds.',
+			'Reserve space for ads/banners so content doesn’t jump.'
+		]
+	},
 	missing_open_graph: {
 		title: 'No social/preview tags (Open Graph)',
 		severity: 'notice',
