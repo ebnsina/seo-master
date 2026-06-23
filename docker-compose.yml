@@ -1,0 +1,96 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-seomaster}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-seomaster}
+      POSTGRES_DB: ${POSTGRES_DB:-seomaster}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-seomaster}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # One-off: applies Drizzle migrations, then exits. The app waits for it.
+  migrate:
+    build:
+      context: .
+      target: migrate
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-seomaster}:${POSTGRES_PASSWORD:-seomaster}@db:5432/${POSTGRES_DB:-seomaster}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+
+  app:
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    # Secrets (APP_ENCRYPTION_KEY, GOOGLE_*, AI_*, SMTP_*, APP_URL, …) come from .env.
+    env_file:
+      - .env
+    # These override .env so they point at the compose services, not localhost.
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      ORIGIN: ${APP_URL:-http://localhost:3000}
+      DATABASE_URL: postgres://${POSTGRES_USER:-seomaster}:${POSTGRES_PASSWORD:-seomaster}@db:5432/${POSTGRES_DB:-seomaster}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # Reverse proxy + automatic HTTPS. Set DOMAIN + ACME_EMAIL in .env.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      DOMAIN: ${DOMAIN:-:80}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+volumes:
+  db-data:
+  redis-data:
+  caddy-data:
+  caddy-config:

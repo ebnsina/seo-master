@@ -1,0 +1,11 @@
+# Reverse proxy with automatic HTTPS.
+# DOMAIN and ACME_EMAIL are injected from .env via docker-compose.
+#   - Production:  DOMAIN=app.example.com  ACME_EMAIL=you@example.com
+#   - Local/no TLS: DOMAIN=:80  (Caddy serves plain HTTP on port 80)
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	reverse_proxy app:3000
+}
