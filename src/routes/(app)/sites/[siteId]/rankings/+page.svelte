@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import SiteNav from '../SiteNav.svelte';
 	import { getRankings, refreshRankings, type RefreshResult } from '../rankings.remote';
 	import type { PageData } from './$types';
 
@@ -25,14 +26,9 @@
 
 <svelte:head><title>Rank tracking · SEOMaster</title></svelte:head>
 
-<a
-	href={resolve('/(app)/sites/[siteId]', { siteId: data.siteId })}
-	class="text-sm text-dim hover:text-accent"
->
-	← Back to site
-</a>
+<SiteNav siteId={data.siteId} current="rankings" />
 
-<div class="mt-4 space-y-6">
+<div class="space-y-6">
 	<div class="flex flex-wrap items-start justify-between gap-3">
 		<div>
 			<h1 class="text-2xl text-text">Rank tracking</h1>

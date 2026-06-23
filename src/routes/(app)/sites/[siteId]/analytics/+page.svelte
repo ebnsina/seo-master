@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import SiteNav from '../SiteNav.svelte';
 	import { getAnalytics, listAnalyticsProperties, setAnalyticsProperty } from '../analytics.remote';
 	import type { Ga4Property } from '$lib/server/google/analytics';
 	import type { PageData } from './$types';
@@ -39,14 +40,9 @@
 
 <svelte:head><title>Analytics · SEOMaster</title></svelte:head>
 
-<a
-	href={resolve('/(app)/sites/[siteId]', { siteId: data.siteId })}
-	class="text-sm text-dim hover:text-accent"
->
-	← Back to site
-</a>
+<SiteNav siteId={data.siteId} current="analytics" />
 
-<div class="mt-4 space-y-6">
+<div class="space-y-6">
 	<div>
 		<h1 class="text-2xl text-text">Analytics</h1>
 		<p class="mt-1 text-dim">Your real visitor numbers from Google Analytics (last 28 days).</p>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import SiteNav from '../SiteNav.svelte';
 	import { createBrief, deleteBrief, generateBriefDraft, getContent } from '../content.remote';
 	import type { PageData } from './$types';
 
@@ -35,14 +35,9 @@
 
 <svelte:head><title>Content briefs · SEOMaster</title></svelte:head>
 
-<a
-	href={resolve('/(app)/sites/[siteId]', { siteId: data.siteId })}
-	class="text-sm text-dim hover:text-accent"
->
-	← Back to site
-</a>
+<SiteNav siteId={data.siteId} current="content" />
 
-<div class="mt-4 space-y-6">
+<div class="space-y-6">
 	<div>
 		<h1 class="text-2xl text-text">Content briefs</h1>
 		<p class="mt-1 text-dim">

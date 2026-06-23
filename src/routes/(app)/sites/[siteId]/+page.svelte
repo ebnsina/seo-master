@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import { getCategory, getGuidance, SEVERITY_ORDER } from '$lib/guidance/issues';
 	import type { IssueSeverity } from '$lib/server/db/schema';
 	import { getAudit, startAudit } from './audit.remote';
 	import GoogleCard from './GoogleCard.svelte';
+	import SiteNav from './SiteNav.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -79,15 +79,14 @@
 	<title>{audit.current?.site.name ?? 'Site'} · Audit · SEOMaster</title>
 </svelte:head>
 
-<a href={resolve('/dashboard')} class="text-sm text-dim hover:text-accent">← All websites</a>
-
 {#if audit.error}
-	<div class="card mt-4 p-6 text-bad">Couldn’t load this website.</div>
+	<div class="card p-6 text-bad">Couldn’t load this website.</div>
 {:else if !audit.ready}
-	<div class="card mt-4 p-6 text-dim">Loading…</div>
+	<div class="card p-6 text-dim">Loading…</div>
 {:else}
 	{@const data = audit.current}
-	<div class="mt-4 space-y-6">
+	<SiteNav siteId={data.site.id} current="overview" />
+	<div class="space-y-6">
 		<!-- Header -->
 		<div class="flex flex-wrap items-center gap-3">
 			<div class="min-w-0 flex-1">
@@ -97,36 +96,6 @@
 				</div>
 				<span class="mono text-sm text-dim">{data.site.url}</span>
 			</div>
-			<a
-				href={resolve('/(app)/sites/[siteId]/keywords', { siteId: data.site.id })}
-				class="btn text-sm"
-			>
-				Keyword research
-			</a>
-			<a
-				href={resolve('/(app)/sites/[siteId]/rankings', { siteId: data.site.id })}
-				class="btn text-sm"
-			>
-				Rank tracking
-			</a>
-			<a
-				href={resolve('/(app)/sites/[siteId]/competitors', { siteId: data.site.id })}
-				class="btn text-sm"
-			>
-				Competitors
-			</a>
-			<a
-				href={resolve('/(app)/sites/[siteId]/content', { siteId: data.site.id })}
-				class="btn text-sm"
-			>
-				Content
-			</a>
-			<a
-				href={resolve('/(app)/sites/[siteId]/analytics', { siteId: data.site.id })}
-				class="btn text-sm"
-			>
-				Analytics
-			</a>
 			<button
 				onclick={runAudit}
 				disabled={running || startAudit.pending > 0}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import SiteNav from '../SiteNav.svelte';
 	import type { SearchIntent } from '$lib/server/db/schema';
 	import type { KeywordSuggestion } from '$lib/server/keywords/service';
 	import {
@@ -45,14 +45,9 @@
 
 <svelte:head><title>Keyword research · SEOMaster</title></svelte:head>
 
-<a
-	href={resolve('/(app)/sites/[siteId]', { siteId: data.siteId })}
-	class="text-sm text-dim hover:text-accent"
->
-	← Back to site
-</a>
+<SiteNav siteId={data.siteId} current="keywords" />
 
-<div class="mt-4 space-y-6">
+<div class="space-y-6">
 	<div>
 		<h1 class="text-2xl text-text">Keyword research</h1>
 		<p class="mt-1 text-dim">
