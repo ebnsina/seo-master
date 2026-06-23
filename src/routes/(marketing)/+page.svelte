@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import Seo from '$lib/components/Seo.svelte';
 
 	const steps = [
 		{ n: 1, title: 'Add your website', body: 'Paste your address — no code, no setup.' },
@@ -60,13 +61,10 @@
 	];
 </script>
 
-<svelte:head>
-	<title>SEOMaster — from zero visitors to ranking on Google</title>
-	<meta
-		name="description"
-		content="SEOMaster audits your site, finds keywords, tracks rankings, and tells you exactly what to fix — in plain language. Built for people who aren't SEO experts."
-	/>
-</svelte:head>
+<Seo
+	title="SEOMaster — from zero visitors to ranking on Google"
+	description="SEOMaster audits your site, finds keywords, tracks rankings, and tells you exactly what to fix — in plain language. Built for people who aren't SEO experts."
+/>
 
 <!-- Hero -->
 <section class="relative overflow-hidden">

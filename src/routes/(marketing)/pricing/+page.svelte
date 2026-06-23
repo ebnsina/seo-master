@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import Seo from '$lib/components/Seo.svelte';
 
 	const tiers = [
 		{
@@ -45,10 +46,10 @@
 	];
 </script>
 
-<svelte:head>
-	<title>Pricing · SEOMaster</title>
-	<meta name="description" content="Simple SEOMaster pricing. Start free, upgrade when you grow." />
-</svelte:head>
+<Seo
+	title="Pricing · SEOMaster"
+	description="Simple SEOMaster pricing. Start free — no card required — and upgrade when you grow."
+/>
 
 <section class="mx-auto max-w-5xl px-6 py-20">
 	<div class="text-center">
