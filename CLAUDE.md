@@ -27,6 +27,7 @@ All-in-one SEO SaaS that takes a zero-visitor site toward ranking on Google. Bui
 | Auth         | **Simple cookie sessions, hand-rolled. No third-party auth.**                 | Hashed password + signed/opaque session cookie (`httpOnly`, `secure`, `sameSite`). Session stored in DB. No NextAuth/Clerk/Lucia dependency.                                                                                                    |
 | AI           | **TanStack AI** (`@tanstack/ai` + provider adapters) — provider-agnostic      | Optional. Consumer picks provider via env `AI_PROVIDER` (openai/anthropic/gemini/ollama) + `AI_MODEL` + `AI_API_KEY`. Server-side `chat({outputSchema})` (Zod) for structured drafts. Not locked to any vendor. Content briefs work without it. |
 | Integrations | **Google Search Console** (OAuth 2.0), hand-rolled                            | Optional (env-gated). Tokens encrypted via `$lib/server/crypto` (AES-256-GCM). Degrades to guided-manual submission. See `.env.example`.                                                                                                        |
+| Jobs         | **BullMQ + Redis**, in-process worker started from `hooks.server.ts`          | Optional (`REDIS_URL`). Crawls + rank refreshes run as jobs; daily rank-sweep scheduler. Falls back to in-process crawl when Redis is off. Extract to a separate process to scale horizontally.                                                 |
 
 ---
 

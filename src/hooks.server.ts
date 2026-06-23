@@ -6,6 +6,10 @@ import {
 	toSessionUser,
 	validateSession
 } from '$lib/server/auth';
+import { startWorkers } from '$lib/server/queue/workers';
+
+// Start background workers once at server boot (no-op when Redis isn't configured).
+startWorkers();
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const token = event.cookies.get(SESSION_COOKIE_NAME);

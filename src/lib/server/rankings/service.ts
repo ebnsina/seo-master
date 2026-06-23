@@ -1,7 +1,25 @@
 import { desc, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '$lib/server/db';
-import { keyword, rankSnapshot, type Keyword, type RankSnapshot } from '$lib/server/db/schema';
-import { searchAnalyticsQuery, type SearchAnalyticsRow } from '$lib/server/google/searchconsole';
+import {
+	googleConnection,
+	keyword,
+	rankSnapshot,
+	site,
+	type Keyword,
+	type RankSnapshot,
+	type Site
+} from '$lib/server/db/schema';
+import {
+	listSites,
+	matchProperty,
+	searchAnalyticsQuery,
+	type SearchAnalyticsRow
+} from '$lib/server/google/searchconsole';
+import {
+	GoogleNotConnectedError,
+	GoogleReconnectRequiredError,
+	getValidAccessToken
+} from '$lib/server/google/connection';
 
 function ymd(d: Date): string {
 	return d.toISOString().slice(0, 10);
@@ -116,4 +134,47 @@ export async function getRankings(siteId: string): Promise<RankingRow[]> {
 				: null;
 		return { keyword: k, latest, delta };
 	});
+}
+
+export type RefreshOutcome =
+	| { ok: true; updated: number }
+	| { ok: false; reason: 'not_connected' | 'no_property' | 'error'; message: string };
+
+/**
+ * Full rank-refresh for one site: resolve the Google access token + matching
+ * Search Console property, then capture snapshots. Shared by the remote command
+ * and the background worker.
+ */
+export async function refreshSiteRankings(target: Site): Promise<RefreshOutcome> {
+	try {
+		const accessToken = await getValidAccessToken(target.organizationId);
+		const property = matchProperty(await listSites(accessToken), target.url, target.domain);
+		if (!property) {
+			return {
+				ok: false,
+				reason: 'no_property',
+				message: 'Verify this site in Search Console first, then refresh rankings.'
+			};
+		}
+		const { updated } = await refreshRankings(target.id, accessToken, property);
+		return { ok: true, updated };
+	} catch (err) {
+		if (err instanceof GoogleNotConnectedError || err instanceof GoogleReconnectRequiredError) {
+			return { ok: false, reason: 'not_connected', message: err.message };
+		}
+		return {
+			ok: false,
+			reason: 'error',
+			message: err instanceof Error ? err.message : 'Refresh failed.'
+		};
+	}
+}
+
+/** Sites whose organization has a Google connection — candidates for the daily sweep. */
+export async function sitesNeedingRankRefresh(): Promise<Site[]> {
+	const rows = await db
+		.select({ site })
+		.from(site)
+		.innerJoin(googleConnection, eq(site.organizationId, googleConnection.organizationId));
+	return rows.map((r) => r.site);
 }

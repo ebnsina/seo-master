@@ -103,6 +103,12 @@ export async function createSite(input: {
 	return created;
 }
 
+/** Fetch a site by id without org scoping — internal/worker use only. */
+export async function getSiteById(siteId: string): Promise<Site | null> {
+	const [found] = await db.select().from(site).where(eq(site.id, siteId));
+	return found ?? null;
+}
+
 /** Mark a site as ownership-verified (org-scoped). */
 export async function markSiteVerified(organizationId: string, siteId: string): Promise<void> {
 	await db

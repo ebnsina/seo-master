@@ -8,6 +8,13 @@ const optional = z.string().optional();
 export const variables = defineEnvVars({
 	DATABASE_URL: { description: 'The database connection string.' },
 
+	// Background jobs (optional). When set, crawls + rank refreshes run via a
+	// BullMQ worker; when unset, crawls run in-process and rank refresh is manual.
+	REDIS_URL: {
+		description: 'Redis connection string for the job queue (optional).',
+		schema: optional
+	},
+
 	// Google Search Console integration. All optional — when unset, the app
 	// falls back to guided manual submission instead of the API flow.
 	GOOGLE_CLIENT_ID: {

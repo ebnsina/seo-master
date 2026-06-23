@@ -6,6 +6,8 @@ import { getSiteForOrg, isLocalHostname } from '$lib/server/sites/service';
 import { createCrawl, getLatestAudit, hasActiveCrawl } from '$lib/server/audit/service';
 import { runCrawl } from '$lib/server/audit/run';
 import { computeReadiness } from '$lib/server/audit/score';
+import { isQueueEnabled } from '$lib/server/queue/connection';
+import { enqueueCrawl } from '$lib/server/queue/queues';
 
 const siteIdSchema = z.string().uuid();
 
@@ -43,8 +45,9 @@ export const startAudit = command(siteIdSchema, async (siteId) => {
 	// Don't queue a second crawl while one is already in flight.
 	if (!(await hasActiveCrawl(siteId))) {
 		const created = await createCrawl(siteId);
-		// Detached: runs after the response is sent (a job queue would own this in prod).
-		void runCrawl(created.id).catch(() => {});
+		// Prefer the job queue; fall back to in-process execution when Redis is off.
+		if (isQueueEnabled()) await enqueueCrawl(created.id);
+		else void runCrawl(created.id).catch(() => {});
 	}
 
 	await getAudit(siteId).refresh();
