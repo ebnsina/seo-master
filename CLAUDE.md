@@ -16,17 +16,17 @@ All-in-one SEO SaaS that takes a zero-visitor site toward ranking on Google. Bui
 
 ## Tech stack (locked)
 
-| Layer        | Choice                                                                        | Notes                                                                                                                                         |
-| ------------ | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Framework    | **SvelteKit (fullstack)** + Svelte 5 (runes)                                  | Config lives in `vite.config.ts` via `sveltekit()` — there is **no `svelte.config.js`**.                                                      |
-| Server logic | **Remote functions** (`$app/server`: `query`, `command`, `form`, `prerender`) | Experimental flags already enabled. Prefer these over `+page.server.ts` load/actions for data + mutations.                                    |
-| Validation   | **Zod v4**                                                                    | Zod is a Standard Schema validator → pass schemas directly to `query`/`command`/`form`.                                                       |
-| Client data  | **TanStack Svelte Query v6** — _only where needed_                            | Use for complex client-side caching/refetch/optimistic UI. For simple cases, remote `query` is already reactive — don't add Query needlessly. |
-| Styling      | **Tailwind CSS v4** + `@tailwindcss/typography`                               | Typography plugin for rendered article/content previews. No CSS-in-JS.                                                                        |
-| ORM / DB     | **Drizzle ORM** + **PostgreSQL** (`postgres-js`)                              | Schema in `src/lib/server/db/schema.ts`.                                                                                                      |
-| Auth         | **Simple cookie sessions, hand-rolled. No third-party auth.**                 | Hashed password + signed/opaque session cookie (`httpOnly`, `secure`, `sameSite`). Session stored in DB. No NextAuth/Clerk/Lucia dependency.  |
-| AI           | Provider-agnostic adapter, **BYOK**, default Claude                           | Optional. Keys encrypted at rest.                                                                                                             |
-| Integrations | **Google Search Console** (OAuth 2.0), hand-rolled                            | Optional (env-gated). Tokens encrypted via `$lib/server/crypto` (AES-256-GCM). Degrades to guided-manual submission. See `.env.example`.      |
+| Layer        | Choice                                                                        | Notes                                                                                                                                                        |
+| ------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Framework    | **SvelteKit (fullstack)** + Svelte 5 (runes)                                  | Config lives in `vite.config.ts` via `sveltekit()` — there is **no `svelte.config.js`**.                                                                     |
+| Server logic | **Remote functions** (`$app/server`: `query`, `command`, `form`, `prerender`) | Experimental flags already enabled. Prefer these over `+page.server.ts` load/actions for data + mutations.                                                   |
+| Validation   | **Zod v4**                                                                    | Zod is a Standard Schema validator → pass schemas directly to `query`/`command`/`form`.                                                                      |
+| Client data  | **TanStack Svelte Query v6** — _only where needed_                            | Use for complex client-side caching/refetch/optimistic UI. For simple cases, remote `query` is already reactive — don't add Query needlessly.                |
+| Styling      | **Tailwind CSS v4** + `@tailwindcss/typography`                               | Typography plugin for rendered article/content previews. No CSS-in-JS.                                                                                       |
+| ORM / DB     | **Drizzle ORM** + **PostgreSQL** (`postgres-js`)                              | Schema in `src/lib/server/db/schema.ts`.                                                                                                                     |
+| Auth         | **Simple cookie sessions, hand-rolled. No third-party auth.**                 | Hashed password + signed/opaque session cookie (`httpOnly`, `secure`, `sameSite`). Session stored in DB. No NextAuth/Clerk/Lucia dependency.                 |
+| AI           | **Anthropic SDK** (`@anthropic-ai/sdk`), model `claude-opus-4-8`, BYOK        | Optional (env `ANTHROPIC_API_KEY`). Structured output via `messages.parse` + `zodOutputFormat`. Content briefs work without it. Verify via claude-api skill. |
+| Integrations | **Google Search Console** (OAuth 2.0), hand-rolled                            | Optional (env-gated). Tokens encrypted via `$lib/server/crypto` (AES-256-GCM). Degrades to guided-manual submission. See `.env.example`.                     |
 
 ---
 

@@ -115,6 +115,12 @@
 			>
 				Competitors
 			</a>
+			<a
+				href={resolve('/(app)/sites/[siteId]/content', { siteId: data.site.id })}
+				class="btn text-sm"
+			>
+				Content
+			</a>
 			<button
 				onclick={runAudit}
 				disabled={running || startAudit.pending > 0}

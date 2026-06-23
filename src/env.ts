@@ -33,5 +33,11 @@ export const variables = defineEnvVars({
 		description: 'DataForSEO account login for keyword metrics (optional).',
 		schema: optional
 	},
-	DATAFORSEO_PASSWORD: { description: 'DataForSEO account password (optional).', schema: optional }
+	DATAFORSEO_PASSWORD: { description: 'DataForSEO account password (optional).', schema: optional },
+
+	// AI content drafting (optional, BYOK). Brief generation works without it.
+	ANTHROPIC_API_KEY: {
+		description: 'Anthropic API key for AI content drafts (optional, BYOK).',
+		schema: optional
+	}
 });

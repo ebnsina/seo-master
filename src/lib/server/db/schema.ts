@@ -3,6 +3,7 @@ import {
 	date,
 	doublePrecision,
 	integer,
+	jsonb,
 	pgEnum,
 	pgTable,
 	text,
@@ -10,6 +11,7 @@ import {
 	uniqueIndex,
 	uuid
 } from 'drizzle-orm/pg-core';
+import type { ContentBrief, ContentDraft } from '$lib/content/types';
 
 /** Roles a user can hold within an organization. */
 export const memberRole = pgEnum('member_role', ['owner', 'editor', 'viewer']);
@@ -219,11 +221,29 @@ export const siteRelations = relations(site, ({ one, many }) => ({
 	}),
 	crawls: many(crawl),
 	keywords: many(keyword),
-	competitors: many(competitor)
+	competitors: many(competitor),
+	contentBriefs: many(contentBrief)
 }));
 
 export const competitorRelations = relations(competitor, ({ one }) => ({
 	site: one(site, { fields: [competitor.siteId], references: [site.id] })
+}));
+
+/** A content brief for a target keyword, with an optional AI draft scaffold. */
+export const contentBrief = pgTable('content_brief', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	siteId: uuid('site_id')
+		.notNull()
+		.references(() => site.id, { onDelete: 'cascade' }),
+	keyword: text('keyword').notNull(),
+	intent: searchIntent('intent').notNull().default('informational'),
+	brief: jsonb('brief').$type<ContentBrief>().notNull(),
+	draft: jsonb('draft').$type<ContentDraft>(),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export const contentBriefRelations = relations(contentBrief, ({ one }) => ({
+	site: one(site, { fields: [contentBrief.siteId], references: [site.id] })
 }));
 
 /**
@@ -296,6 +316,7 @@ export type GoogleConnection = typeof googleConnection.$inferSelect;
 export type Keyword = typeof keyword.$inferSelect;
 export type RankSnapshot = typeof rankSnapshot.$inferSelect;
 export type Competitor = typeof competitor.$inferSelect;
+export type ContentBriefRow = typeof contentBrief.$inferSelect;
 export type SearchIntent = (typeof searchIntent.enumValues)[number];
 export type MemberRole = (typeof memberRole.enumValues)[number];
 export type SiteVerificationStatus = (typeof siteVerificationStatus.enumValues)[number];

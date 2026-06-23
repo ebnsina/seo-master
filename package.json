@@ -43,6 +43,7 @@
 		"vite": "^8.0.16"
 	},
 	"dependencies": {
+		"@anthropic-ai/sdk": "^0.105.0",
 		"@fontsource-variable/geist-mono": "^5.2.8",
 		"@fontsource-variable/inter-tight": "^5.2.7",
 		"@fontsource-variable/sora": "^5.2.8",
