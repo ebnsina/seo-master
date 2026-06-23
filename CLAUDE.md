@@ -116,3 +116,21 @@ npm run db:studio    # drizzle studio
 - No unexplained SEO jargon in UI — every term has a plain-language explainer.
 - Each `AuditIssue` / `Task` carries structured guidance: `whatItIs`, `whyItMatters`, `howToFix[]` (per-CMS), `difficulty`, `humanImpact`, `humanEffort`. Store as content in `src/lib/guidance/`, not hardcoded in components.
 - Always surface "do this next." Never leave the user staring at raw data.
+
+---
+
+## Design system (see `src/routes/layout.css`)
+
+Premium light theme, warm off-white app bg (`--bg`) with clean white cards, single blue accent (`#0068A8`). All design tokens (colors, radii, fonts) live in `:root` and are exposed to Tailwind via `@theme inline` — there is one source of truth; never hardcode hex values in components, use the tokens / utilities (`bg-elev`, `text-dim`, `bg-accent-soft`, `rounded-card`, `font-display`, …).
+
+**Flat, no shadows.** Surfaces are separated by tinted backgrounds and hairline borders, not drop shadows. Don't reintroduce `box-shadow` on cards/buttons.
+
+**Primitives** (classes in `layout.css`): `.card` (white surface, hairline border), `.btn` / `.btn-primary` (labels stay one line — `white-space: nowrap`), `.field` (inputs), `.pill` / `.pill-good` (badges).
+
+**Callouts — `.note`** for status & guidance: pair with a soft background variant `note-good` / `note-warn` / `note-bad` / `note-info` (tinted, **no border**) and a matching text color (`text-good` / `text-warn` / `text-bad` / `text-accent`) on the heading. Use these for verdicts, connect prompts, empty/success states — not bordered cards.
+
+**Section grouping & hierarchy:** related issue/result groups sit in a tinted panel (`rounded-card p-5`) with an icon badge + title + faint one-line subtitle. Convention: **Search SEO** uses a neutral panel (`bg-elev-2`) with an accent-soft Search icon badge; **AI search (GEO)** uses a `bg-accent-soft` panel with a solid-accent Bot icon badge — keep the two visually distinct but structurally identical.
+
+**Layout:** the app shell (`(app)/+layout.svelte`) has a sticky full-height desktop sidebar (`md:sticky md:top-0 md:h-screen`) and a mobile drawer; content scrolls independently.
+
+**Icons:** Lucide via **per-icon imports** (`import X from '@lucide/svelte/icons/<name>'`) — the root barrel breaks SSR. Use `size={…}` and `class="text-…"`.

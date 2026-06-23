@@ -209,7 +209,7 @@
 			{:else}
 				<!-- Classic SEO -->
 				{#if seoGroups.length > 0}
-					<section class="space-y-3">
+					<section class="bg-elev-2 space-y-3 rounded-card p-5">
 						<div class="flex items-center gap-3">
 							<span
 								class="bg-accent-soft text-accent inline-flex size-9 shrink-0 items-center justify-center rounded-field"
